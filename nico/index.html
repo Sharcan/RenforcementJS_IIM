@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="pin-login/pin-login.css">
+    <title>Login</title>
+</head>
+
+
+<body>
+    
+
+    <div class="pin-login" id="mainPinLogin">
+        <input type="password" readonly class="pin-loginText">
+        <div class="pin-loginNumpad">
+            <!-- <div class="pin-loginKey">0</div>
+            <div class="pin-loginKey">0</div>
+            <div class="pin-loginKey">0</div> <br>
+            <div class="pin-loginKey">0</div>
+            <div class="pin-loginKey">0</div>
+            <div class="pin-loginKey">0</div> <br>
+            <div class="pin-loginKey">0</div>
+            <div class="pin-loginKey">0</div>
+            <div class="pin-loginKey">0</div> <br>
+            <div class="pin-loginKey material-icons">backspace</div>
+            <div class="pin-loginKey">0</div>
+            <div class="pin-loginKey material-icons">done</div> -->
+        </div>
+    </div>
+
+
+    <script src="pin-login/pin-login.js"></script>
+    <script>
+
+        // On créer un nouvel objet PinLogin
+        new PinLogin({
+
+            // El vaut la div mainPinLogin
+            el: document.getElementById("mainPinLogin"),
+
+            // On défini le fichier test pour le code
+            loginEndPoint: "jspencore",
+
+            // On défini la page de redirection
+            redirectTo: "dashboard.html",
+            
+            // On défini le nombre de chiffre maximum utilisable pour le code
+            maxNumbers: 4
+        });
+
+    </script>
+</body>
+</html>
