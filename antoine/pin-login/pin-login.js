@@ -64,17 +64,18 @@ class PinLogin {
     }
 
     _attemptLogin() {
-        if(this.value.length > 0) {
-            fetch(this.loginEndPoint, {
-                method: "post",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: `pincode=${this.value}`
-            }).then(response => {
-                console.log(response.status);
-            })
-        }
+        // if(this.value.length > 0) {
+        //     fetch(this.loginEndPoint, {
+        //         method: "post",
+        //         headers: {
+        //             "Content-Type": "application/x-www-form-urlencoded"
+        //         },
+        //         body: `pincode=${this.value}`
+        //     }).then(response => {
+        //         console.log(response.status);
+        //     })
+        // }
+        console.log('Tentative de connexion')
     }
 
 }
