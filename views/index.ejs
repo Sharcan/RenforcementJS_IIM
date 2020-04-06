@@ -4,23 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="pin-login/pin-login.css">
-    <title>Login</title>
+    <link rel="stylesheet" href="pin-login.css">
+    <title>Se connecter</title>
 </head>
 
 
 <body>
-    
+    <h1>Connectez-vous au chat !</h1>
 
     <div class="pin-login" id="mainPinLogin">
-        <input type="password" readonly class="pin-loginText">
-        <div class="pin-loginNumpad">
+        <input type="password" readonly class="pin-login__text">
+        <div class="pin-login__numpad">
             
         </div>
     </div>
 
 
-    <script src="pin-login/pin-login.js"></script>
+    <script src="pin-login.js"></script>
     <script>
 
         // On créer un nouvel objet PinLogin
@@ -30,10 +30,10 @@
             el: document.getElementById("mainPinLogin"),
 
             // On défini le fichier test pour le code
-            loginEndPoint: "jspencore",
+            loginEndPoint: "http://localhost:8080/login",
 
             // On défini la page de redirection
-            redirectTo: "dashboard.html",
+            redirectTo: "http://localhost:8080/chat",
             
             // On défini le nombre de chiffre maximum utilisable pour le code
             maxNumbers: 4
