@@ -1,11 +1,90 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="chat.css">
     <title>Chat</title>
 </head>
 <body>
-    <h1>Bienvenue dans le chat !</h1>
+
+    <div class="main">
+        <h1>Messagerie</h1>
+
+
+        <div class="msgContainer" id="msgContainer"></div>
+
+        <div class="form">
+            <input type="text" id="msgInput">
+            <button type="submit" id="btnSend">Envoyer</button>
+        </div>
+
+    </div>
+
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://localhost:8080');
+
+
+        var pseudo = prompt('quel est ton nom ?')
+        if(pseudo.length > 0){
+
+            socket.emit('pseudo', pseudo);
+            document.title = pseudo + ' - ' + document.title;
+        
+        }else{
+            window.close();
+        }
+
+        socket.on('newUser', (message) => {
+            const newUserText = document.createElement("div");
+            newUserText.classList.add('newUserClass');
+            newUserText.textContent = message + ' a rejoint le chat !';
+
+            document.getElementById('msgContainer').appendChild(newUserText);
+        });
+
+
+        socket.on('quitUser', (message) => {
+            const quitUserText = document.createElement("div");
+            quitUserText.classList.add('newUserClass');
+            quitUserText.textContent = message + ' a quitté le chat !';
+
+            document.getElementById('msgContainer').appendChild(quitUserText);
+        });
+
+        socket.on('newMessageAll', (message, pseudo) => {
+            
+        })
+
+
+
+
+
+
+        document.getElementById('btnSend').addEventListener('click', ()=>{
+
+            const textInput = document.getElementById('msgInput').value;
+            document.getElementById('msgInput').value = '';
+
+            if(textInput.length > 0) {
+                socket.emit('newMessage', textInput);
+
+                const newMessage = document.createElement('div');
+                newMessage.classList.add('newMessage');
+                newMessage.textContent = pseudo + ': ' + textInput;
+                document.getElementById('msgContainer').appendChild(newMessage);
+
+            }
+            else {
+                return false;
+            }
+
+        })
+
+    </script>
 </body>
 </html>
