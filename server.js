@@ -49,18 +49,25 @@ app.use(function(req, res, next) {
 
 var io = require('socket.io').listen(server);
 
+// Lorsqu'une personne arrive sur le fichier chat.html, la fonction ci-dessous se lance
 io.on('connection', (socket) => {
 
+    // On recoit 'pseudo' du fichier html
     socket.on('pseudo', (pseudo)=>{
+        
+        // On conserve le pseudo dans la variable socket qui est propre à chaque utilisateur
         socket.pseudo = pseudo;
 
+        // On previent les autres
         socket.broadcast.emit('newUser', pseudo);
     });
 
+    // Quand un user se déconnecte
     socket.on('disconnect', () => {
         socket.broadcast.emit('quitUser', socket.pseudo);
     });
 
+    // Quand on recoit un nouveau message
     socket.on('newMessage', (message)=> {
         socket.broadcast.emit('newMessageAll', {message: message, pseudo: socket.pseudo});
     });
