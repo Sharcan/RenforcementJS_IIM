@@ -16,7 +16,8 @@
         <div class="msgContainer" id="msgContainer"></div>
 
         <div class="form">
-            <input type="text" id="msgInput">
+            <div id="isWritting"></div>
+            <input type="text" id="msgInput" onkeypress="writting()" onblur="notWritting()">
             <button type="submit" id="btnSend">Envoyer</button>
         </div>
 
@@ -30,13 +31,15 @@
 
 
         var pseudo = prompt('quel est ton nom ?')
+        console.log(pseudo.length);
         if(pseudo.length > 0){
 
             socket.emit('pseudo', pseudo);
             document.title = pseudo + ' - ' + document.title;
         
         }else{
-            window.close();
+            console.log('ici');
+            window.location.reload();
         }
 
         socket.on('newUser', (message) => {
@@ -56,11 +59,21 @@
             document.getElementById('msgContainer').appendChild(quitUserText);
         });
 
-        socket.on('newMessageAll', (message, pseudo) => {
-            
-        })
+        socket.on('newMessageAll', (content) => {
+            const NewMessageOther = document.createElement("div");
+            NewMessageOther.classList.add('newMessageAll');
+            NewMessageOther.textContent = content.pseudo + ': ' + content.message;
 
+            document.getElementById('msgContainer').appendChild(NewMessageOther);
+        });
 
+        socket.on('writting', (pseudo) => {
+            document.getElementById('isWritting').textContent = pseudo + ' est en train d\'ecrire';
+        });
+
+        socket.on('notWritting', (pseudo) => {
+            document.getElementById('isWritting').textContent = '';
+        });
 
 
 
@@ -84,6 +97,16 @@
             }
 
         })
+
+
+        function writting() {
+            socket.emit('writting', pseudo)
+        }
+
+        function notWritting() {
+            socket.emit('notWritting', pseudo)
+        }
+        
 
     </script>
 </body>

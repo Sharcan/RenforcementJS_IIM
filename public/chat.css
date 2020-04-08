@@ -13,13 +13,14 @@
     top: 0;
     left: 0;
 
-    padding-left: 10%;
+    /* padding-left: 10%; */
 }
 
 .main > .form {
     position: absolute;
     bottom: 2%;
     width: 100%;
+    margin-left: 20%;
 }
 
 .form > input{
@@ -37,4 +38,38 @@
 .newUserClass{
     color: grey;
     font-style: italic;
+}
+
+#isWritting{
+    color: grey;
+    font-style: italic;
+}
+
+.newMessage{
+    
+    background-color: rgb(115, 129, 129);
+    border: none;
+    border-radius: 10px;
+
+    font-size: 20px;
+
+    padding: 5px;
+
+    margin-left: 55%;
+    margin-top: 2%;
+    
+}
+
+.newMessageAll{
+    
+    background-color: rgb(81, 226, 226);
+    border: none;
+    border-radius: 10px;
+
+    font-size: 20px;
+
+    padding: 5px;
+    max-width: 50%;
+    margin-top: 2%;
+
 }

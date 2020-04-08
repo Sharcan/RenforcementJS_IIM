@@ -65,6 +65,14 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('newMessageAll', {message: message, pseudo: socket.pseudo});
     });
 
+    socket.on('writting', (pseudo) => {
+        socket.broadcast.emit('writting', pseudo);
+    });
+
+    socket.on('notWritting', (pseudo) => {
+        socket.broadcast.emit('notWritting', pseudo);
+    });
+
 });
 
 
