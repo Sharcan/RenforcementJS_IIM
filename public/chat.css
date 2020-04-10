@@ -67,11 +67,14 @@ form > input[type="submit"]{
 
 }
 
-.newUserClass{
+.newUser{
     color: white;
     font-style: italic;
 }
-
+.quitUser{
+    color: white;
+    font-style: italic;
+}
 #isWritting{
     color: white;
     font-style: italic;
