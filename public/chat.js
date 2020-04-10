@@ -1,11 +1,20 @@
-console.log('ta mere')
-
 // On connecte le fichier au serveur
 var socket = io.connect('http://localhost:8080');
 
 // On demande le pseudo de la personne
 while(!pseudo) {
     var pseudo = prompt('quel est ton nom ?');
+    fetch('http://localhost:8080/createuser', {
+                //On appel le serveur en faisant passer le pseudo
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*"
+                },
+                body: JSON.stringify({
+                    pseudo: pseudo
+                })
+    })
 }
 
 socket.emit('pseudo', pseudo);

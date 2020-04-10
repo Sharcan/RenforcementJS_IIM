@@ -1,11 +1,26 @@
+//DÉFINITION DES PARAMETRES
+
 //On appelle tous les modules dont on a besoin
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
-var ent = require('ent');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 const cookieParser = require('cookie-parser');
+var mongoose = require('mongoose');
+
+//On se conencte à la base de données
+mongoose.connect('mongodb://localhost/RenforcementJS', { useNewUrlParser: true, useUnifiedTopology: true }, function(err){
+if(err) {
+    console.log(err)
+} else {
+    console.log('Connected to mongodb')
+}
+})
+
+//On va cherche le model User
+require('./models/user.model');
+var User = mongoose.model('user');
 
 //On dit à notre application d'utiliser nos modules
 app.use(express.urlencoded());
@@ -16,6 +31,12 @@ app.use(cors());
 //On définit le dossier contenant notre CSS et JS
 app.use(express.static(__dirname + '/public'));
 
+
+
+
+// ÉCOUTE DES ROUTES
+
+//POST
 //On écoute l'URL '/login'. Si on y reçoit un post, on lance la fonction
 app.post('/login', (req, res, next) => {
 
@@ -29,8 +50,27 @@ app.post('/login', (req, res, next) => {
     return res.status(402).json({ status: false });
 }
 })
+app.post('/createuser', (req, res, next) => {
 
-//On définit nos routes
+    //On cherche dans mongo le user avec ce pseudo
+    User.findOne({ pseudo: req.body.pseudo }, (err, user) => {
+        //Si il existe, on connecte le user en mettant son pseudo dans les cookies
+        if(user) {
+            res.cookie('pseudo', user.pseudo)
+            return res.status(200).json({ status: true })
+        //Sinon on crée le user et on le connecte
+        } else {
+            var user = new User();
+            user.pseudo = req.body.pseudo;
+            user.save();
+
+            res.cookie('pseudo', user.pseudo)
+            return res.status(200).json({ status: true })
+        }
+    })
+})
+
+//GET
 app.get('/', function(req, res) {
     res.render('index.ejs');
 });
@@ -43,12 +83,11 @@ app.get('/chat', function(req, res) {
     }
 });
 
-//Si on va sur une page non définie sur le port de node, on écrit "Page introuvable"
+//404
 app.use(function(req, res, next) {
     res.setHeader('Content-type', 'text/html');
     res.status(404).send('Page introuvable !');
 });
-
 
 
 
