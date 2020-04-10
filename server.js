@@ -35,7 +35,6 @@ app.get('/', function(req, res) {
     res.render('index.ejs');
 });
 app.get('/chat', function(req, res) {
-    console.log(req.cookies);
     if( req.cookies.statusCode === '200'){
         res.render('chat.ejs');
     }
@@ -62,7 +61,7 @@ var io = require('socket.io').listen(server);
 io.on('connection', (socket) => {
 
     // On recoit 'pseudo' du fichier html
-    socket.on('pseudo', (pseudo)=>{
+    socket.on('pseudo', (pseudo) => {
         
         // On conserve le pseudo dans la variable socket qui est propre à chaque utilisateur
         socket.pseudo = pseudo;

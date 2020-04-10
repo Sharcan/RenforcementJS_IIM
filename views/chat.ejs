@@ -16,12 +16,12 @@
         </div>
 
         <div class="msgContainer" id="msgContainer"></div>
-
-        <div class="form">
-            <div id="isWritting"></div>
-            <input type="text" id="msgInput" onkeypress="writting()" onblur="notWritting()">
-            <button type="submit" id="btnSend">Envoyer</button>
-        </div>
+        
+        <div id="isWritting"></div>
+        <form action="/chat" method="POST" id="chatForm">
+            <input type="text" id="msgInput" onkeypress="writting()" onblur="notWritting()" autofocus>
+            <input type="submit" id="btnSend" value="Envoyer">
+        </form>
 
     </div>
 

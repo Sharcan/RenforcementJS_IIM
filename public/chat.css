@@ -15,7 +15,7 @@
     /* padding-left: 10%; */
 }
 
-.main > .form {
+.main > form {
     position: absolute;
     bottom: 2%;
     width: 100%;
@@ -55,13 +55,13 @@
     }
 }
 
-.form > input{
+form > input[type="text"]{
     display: inline-block;
     width: 50%;
     height: 35px;
     border: none;
 }
-.form > button{
+form > input[type="submit"]{
     padding: 9px;
     border: none;
 

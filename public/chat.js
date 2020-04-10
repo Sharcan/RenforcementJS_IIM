@@ -2,21 +2,12 @@
 var socket = io.connect('http://localhost:8080');
 
 // On demande le pseudo de la personne
-var pseudo = prompt('quel est ton nom ?');
-
-// Si elle rentre un pseudo on continue
-if(pseudo.length > 0){
-
-    socket.emit('pseudo', pseudo);
-    document.title = pseudo + ' - ' + document.title;
-
+while(!pseudo) {
+    var pseudo = prompt('quel est ton nom ?');
 }
 
-// Sinon on recommence
-else{
-    console.log('ici');
-    window.location.reload();
-}
+socket.emit('pseudo', pseudo);
+document.title = pseudo + ' - ' + document.title;
 
 // On attends l'emission 'newUser' du serveur, si il est reçu on ajoute un message 
 // contenant les informations emises par le serveur
@@ -56,10 +47,10 @@ socket.on('notWritting', (pseudo) => {
     document.getElementById('isWritting').textContent = '';
 });
 
+// Quand on soumet le formulaire
+document.getElementById('chatForm').addEventListener('submit', (e)=>{
 
-
-// Au click sur le bouton "envoyer"
-document.getElementById('btnSend').addEventListener('click', ()=>{
+    e.preventDefault();
 
     // On récupère la valeur dans l'input et on met le input a 0
     const textInput = document.getElementById('msgInput').value;
@@ -80,35 +71,7 @@ document.getElementById('btnSend').addEventListener('click', ()=>{
         return false;
     }
 
-})
-// Et si on appuie sur une touche
-document.getElementById('msgInput').addEventListener('keyup', (e)=>{
-
-    //Si la touche est Entrée
-    if(e.keyCode === 13) {
-
-        // On récupère la valeur dans l'input et on met le input a 0
-        const textInput = document.getElementById('msgInput').value;
-        document.getElementById('msgInput').value = '';
-
-        // Si la valeur > 0, on envoie un message au serveur contenant la valeur de l'input 
-        if(textInput.length > 0) {
-            socket.emit('newMessage', textInput);
-
-            // On creer une div contenant le message pour la personne qui à envoyé le message
-            const newMessage = document.createElement('div');
-            newMessage.classList.add('newMessage');
-            newMessage.textContent = pseudo + ': ' + textInput;
-            document.getElementById('msgContainer').appendChild(newMessage);
-
-        }
-        else {
-            return false;
-        }
-
-    }
-
-})
+});
 
 
 // S'il ecrit on emet 'writting' au serveur
