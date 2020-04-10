@@ -5,10 +5,12 @@ var server = require('http').createServer(app);
 var ent = require('ent');
 var bodyParser = require('body-parser');
 var cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 //On dit à notre application d'utiliser nos modules
 app.use(express.urlencoded());
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(cors());
 
 //On définit le dossier contenant notre CSS et JS
@@ -19,6 +21,7 @@ app.post('/login', (req, res, next) => {
 
     //Si le pincode (contenu dans le body) est '1234' on retourne le status 200 (ok)
     if (req.body.pincode == "1234") {
+        res.cookie('statusCode', 200);
         return res.status(200).json({ status: true });
         
     //Sinon, on retourne le status 402 (pas ok)
@@ -32,7 +35,13 @@ app.get('/', function(req, res) {
     res.render('index.ejs');
 });
 app.get('/chat', function(req, res) {
-    res.render('chat.ejs');
+    console.log(req.cookies);
+    if( req.cookies.statusCode === '200'){
+        res.render('chat.ejs');
+    }
+    else{
+        res.render('402.ejs');
+    }
 });
 
 //Si on va sur une page non définie sur le port de node, on écrit "Page introuvable"
