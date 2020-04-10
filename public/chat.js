@@ -1,3 +1,5 @@
+console.log('ta mere')
+
 // On connecte le fichier au serveur
 var socket = io.connect('http://localhost:8080');
 
@@ -14,36 +16,25 @@ if(pseudo.length > 0){
 
 // Sinon on recommence
 else{
-    console.log('ici');
     window.location.reload();
 }
 
 // On attends l'emission 'newUser' du serveur, si il est reçu on ajoute un message 
 // contenant les informations emises par le serveur
 socket.on('newUser', (message) => {
-    const newUserText = document.createElement("div");
-    newUserText.classList.add('newUserClass');
-    newUserText.textContent = message + ' a rejoint le chat !';
-
-    document.getElementById('msgContainer').appendChild(newUserText);
+    createElementFunction('newUser', message);
 });
 
 // On check si le user se déconnecte
 socket.on('quitUser', (message) => {
-    const quitUserText = document.createElement("div");
-    quitUserText.classList.add('newUserClass');
-    quitUserText.textContent = message + ' a quitté le chat !';
-
-    document.getElementById('msgContainer').appendChild(quitUserText);
+    createElementFunction('quitUser', message);
 });
 
 // On attends un message venant d'une personne tierce
 socket.on('newMessageAll', (content) => {
-    const NewMessageOther = document.createElement("div");
-    NewMessageOther.classList.add('newMessageAll');
-    NewMessageOther.textContent = content.pseudo + ': ' + content.message;
 
-    document.getElementById('msgContainer').appendChild(NewMessageOther);
+    createElementFunction('newMessageAll', content);
+
 });
 
 // Une personne est en train d'ecrire
@@ -67,20 +58,18 @@ document.getElementById('btnSend').addEventListener('click', ()=>{
 
     // Si la valeur > 0, on envoie un message au serveur contenant la valeur de l'input 
     if(textInput.length > 0) {
+
         socket.emit('newMessage', textInput);
 
-        // On creer une div contenant le message pour la personne qui à envoyé le message
-        const newMessage = document.createElement('div');
-        newMessage.classList.add('newMessage');
-        newMessage.textContent = pseudo + ': ' + textInput;
-        document.getElementById('msgContainer').appendChild(newMessage);
+        createElementFunction('newMessage', textInput);
 
     }
     else {
         return false;
     }
 
-})
+});
+
 // Et si on appuie sur une touche
 document.getElementById('msgInput').addEventListener('keyup', (e)=>{
 
@@ -93,13 +82,10 @@ document.getElementById('msgInput').addEventListener('keyup', (e)=>{
 
         // Si la valeur > 0, on envoie un message au serveur contenant la valeur de l'input 
         if(textInput.length > 0) {
+
             socket.emit('newMessage', textInput);
 
-            // On creer une div contenant le message pour la personne qui à envoyé le message
-            const newMessage = document.createElement('div');
-            newMessage.classList.add('newMessage');
-            newMessage.textContent = pseudo + ': ' + textInput;
-            document.getElementById('msgContainer').appendChild(newMessage);
+            createElementFunction('newMessage', textInput);
 
         }
         else {
@@ -108,18 +94,55 @@ document.getElementById('msgInput').addEventListener('keyup', (e)=>{
 
     }
 
-})
+});
 
 
 // S'il ecrit on emet 'writting' au serveur
 function writting() {
-    socket.emit('writting', pseudo)
+    socket.emit('writting', pseudo);
 }
 
 // S'il ecrit plus on emet 'notWritting' au serveur
 function notWritting() {
-    socket.emit('notWritting', pseudo)
+    socket.emit('notWritting', pseudo);
 }
+
+
+
+function createElementFunction(element, content) {
+    
+    const newElement = document.createElement("div");
+
+    switch(element){
+
+        case 'newMessage':
+            console.log('NEW');
+            newElement.classList.add(element);
+            newElement.textContent = pseudo + ': ' + content;
+            document.getElementById('msgContainer').appendChild(newElement);
+            break;
+
+        case 'newMessageAll':
+            console.log('NEWALL');
+            newElement.classList.add(element);
+            newElement.textContent = content.pseudo + ': ' + content.message;
+            document.getElementById('msgContainer').appendChild(newElement);
+            break;
+
+        case 'newUser':
+            newElement.classList.add(element);
+            newElement.textContent = content + ' à rejoint le chat';
+            document.getElementById('msgContainer').appendChild(newElement);
+            break;
+
+        case 'quitUser':
+            newElement.classList.add(element);
+            newElement.textContent = content + ' à quitter le chat';
+            document.getElementById('msgContainer').appendChild(newElement);
+            break;
+    }
+}
+
 
 //Text typping effect
 const texts = ['ce chat !', 'cette messagerie !', 'ce site !'];
