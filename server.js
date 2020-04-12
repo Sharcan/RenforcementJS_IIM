@@ -35,7 +35,6 @@ app.get('/', function(req, res) {
     res.render('index.ejs');
 });
 app.get('/chat', function(req, res) {
-    console.log(req.cookies);
     if( req.cookies.statusCode === '200'){
         res.render('chat.ejs');
     }
@@ -61,6 +60,7 @@ var io = require('socket.io').listen(server);
 // Lorsqu'une personne arrive sur le fichier chat.html, la fonction ci-dessous se lance
 io.on('connection', (socket) => {
 
+    
     // On recoit 'pseudo' du fichier html
     socket.on('pseudo', (pseudo)=>{
         
@@ -71,6 +71,12 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('newUser', pseudo);
     });
 
+    socket.on('channel', (channel) => {
+        socket.join(channel);
+        socket.channel = channel;
+        console.log(socket.rooms);
+    });
+
     // Quand un user se déconnecte
     socket.on('disconnect', () => {
         socket.broadcast.emit('quitUser', socket.pseudo);
@@ -78,7 +84,8 @@ io.on('connection', (socket) => {
 
     // Quand on recoit un nouveau message
     socket.on('newMessage', (message)=> {
-        socket.broadcast.emit('newMessageAll', {message: message, pseudo: socket.pseudo});
+        // socket.broadcast.emit('newMessageAll', {message: message, pseudo: socket.pseudo});
+        socket.broadcast.to(socket.channel).emit('newMessageAll', {message: message, pseudo: socket.pseudo});
     });
 
     socket.on('writting', (pseudo) => {
@@ -88,6 +95,7 @@ io.on('connection', (socket) => {
     socket.on('notWritting', (pseudo) => {
         socket.broadcast.emit('notWritting', pseudo);
     });
+
 
 });
 

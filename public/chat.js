@@ -1,5 +1,3 @@
-console.log('ta mere')
-
 // On connecte le fichier au serveur
 var socket = io.connect('http://localhost:8080');
 
@@ -18,6 +16,11 @@ if(pseudo.length > 0){
 else{
     window.location.reload();
 }
+
+var channel = prompt('Tu veux rejoindre quel channel ?');
+
+socket.emit('channel', channel);
+
 
 // On attends l'emission 'newUser' du serveur, si il est reçu on ajoute un message 
 // contenant les informations emises par le serveur
@@ -46,8 +49,6 @@ socket.on('writting', (pseudo) => {
 socket.on('notWritting', (pseudo) => {
     document.getElementById('isWritting').textContent = '';
 });
-
-
 
 // Au click sur le bouton "envoyer"
 document.getElementById('btnSend').addEventListener('click', ()=>{
@@ -164,6 +165,6 @@ let letter = '';
         count++;
         index = 0;
     }
-    setTimeout(type, 400);
+    setTimeout(type, 1000);
 
 }());
