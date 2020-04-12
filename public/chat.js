@@ -2,20 +2,23 @@
 var socket = io.connect('http://localhost:8080');
 
 // On demande le pseudo de la personne
-var pseudo = prompt('quel est ton nom ?');
-
-// Si elle rentre un pseudo on continue
-if(pseudo.length > 0){
-
-    socket.emit('pseudo', pseudo);
-    document.title = pseudo + ' - ' + document.title;
-
+while(!pseudo) {
+    var pseudo = prompt('quel est ton nom ?');
+    fetch('http://localhost:8080/createuser', {
+                //On appel le serveur en faisant passer le pseudo
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*"
+                },
+                body: JSON.stringify({
+                    pseudo: pseudo
+                })
+    })
 }
 
-// Sinon on recommence
-else{
-    window.location.reload();
-}
+socket.emit('pseudo', pseudo);
+document.title = pseudo + ' - ' + document.title;
 
 var channel = prompt('Tu veux rejoindre quel channel ?');
 
@@ -50,8 +53,12 @@ socket.on('notWritting', (pseudo) => {
     document.getElementById('isWritting').textContent = '';
 });
 
-// Au click sur le bouton "envoyer"
-document.getElementById('btnSend').addEventListener('click', ()=>{
+
+
+// Quand on soumet le formulaire
+document.getElementById('chatForm').addEventListener('submit', (e)=>{
+
+    e.preventDefault();
 
     // On récupère la valeur dans l'input et on met le input a 0
     const textInput = document.getElementById('msgInput').value;
@@ -70,33 +77,6 @@ document.getElementById('btnSend').addEventListener('click', ()=>{
     }
 
 });
-
-// Et si on appuie sur une touche
-document.getElementById('msgInput').addEventListener('keyup', (e)=>{
-
-    //Si la touche est Entrée
-    if(e.keyCode === 13) {
-
-        // On récupère la valeur dans l'input et on met le input a 0
-        const textInput = document.getElementById('msgInput').value;
-        document.getElementById('msgInput').value = '';
-
-        // Si la valeur > 0, on envoie un message au serveur contenant la valeur de l'input 
-        if(textInput.length > 0) {
-
-            socket.emit('newMessage', textInput);
-
-            createElementFunction('newMessage', textInput);
-
-        }
-        else {
-            return false;
-        }
-
-    }
-
-});
-
 
 // S'il ecrit on emet 'writting' au serveur
 function writting() {
