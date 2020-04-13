@@ -54,6 +54,16 @@ socket.on('notWritting', (pseudo) => {
 });
 
 
+socket.on('oldMessages', (content) => {
+    // createElementFunction('oldMessages', content);
+    console.log(content);
+
+    content.forEach(element => {
+        createElementFunction('oldMessages', {sender: element.sender, content: element.content});
+    });
+});
+
+
 
 // Quand on soumet le formulaire
 document.getElementById('chatForm').addEventListener('submit', (e)=>{
@@ -121,6 +131,13 @@ function createElementFunction(element, content) {
             newElement.textContent = content + ' à quitter le chat';
             document.getElementById('msgContainer').appendChild(newElement);
             break;
+
+        case 'oldMessages':
+            newElement.classList.add(element);
+            newElement.textContent = content.sender + ': ' + content.content;
+            document.getElementById('msgContainer').appendChild(newElement);
+            break;
+
     }
 }
 

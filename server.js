@@ -18,9 +18,13 @@ if(err) {
 }
 })
 
-//On va cherche le model User
+//On va cherche les models 
 require('./models/user.model');
+require('./models/chat.model');
+require('./models/room.model');
 var User = mongoose.model('user');
+var Chat = mongoose.model('chat');
+var Room = mongoose.model('room');
 
 //On dit à notre application d'utiliser nos modules
 app.use(express.urlencoded());
@@ -98,7 +102,6 @@ var io = require('socket.io').listen(server);
 
 // Lorsqu'une personne arrive sur le fichier chat.html, la fonction ci-dessous se lance
 io.on('connection', (socket) => {
-
     
     // On recoit 'pseudo' du fichier html
     socket.on('pseudo', (pseudo) => {
@@ -113,7 +116,27 @@ io.on('connection', (socket) => {
     socket.on('channel', (channel) => {
         socket.join(channel);
         socket.channel = channel;
-        console.log(socket.rooms);
+
+        Room.findOne({_id: socket.channel}, (err, channel) => {
+            if(channel){
+                Chat.find({_id_room: socket.channel}, (err, messages) => {
+                    if(!messages){
+                        return false;
+                    }
+                    else{
+                        socket.emit('oldMessages', messages);
+                    }
+                })
+            }
+            else {
+
+                var room = new Room();
+                room._id = socket.channel;
+                room.save();
+
+                return true;
+            }
+        })
     });
 
     // Quand un user se déconnecte
@@ -125,6 +148,14 @@ io.on('connection', (socket) => {
     socket.on('newMessage', (message)=> {
         // socket.broadcast.emit('newMessageAll', {message: message, pseudo: socket.pseudo});
         socket.broadcast.to(socket.channel).emit('newMessageAll', {message: message, pseudo: socket.pseudo});
+
+        var chat = new Chat();
+        chat._id_room = socket.channel;
+        chat.sender = socket.pseudo;
+        chat.content = message;
+        chat.save();
+
+
     });
 
     socket.on('writting', (pseudo) => {
