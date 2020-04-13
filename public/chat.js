@@ -56,7 +56,6 @@ socket.on('notWritting', (pseudo) => {
 
 socket.on('oldMessages', (content) => {
     // createElementFunction('oldMessages', content);
-    console.log(content);
 
     content.forEach(element => {
         createElementFunction('oldMessages', {sender: element.sender, content: element.content});
@@ -107,14 +106,12 @@ function createElementFunction(element, content) {
     switch(element){
 
         case 'newMessage':
-            console.log('NEW');
             newElement.classList.add(element);
             newElement.textContent = pseudo + ': ' + content;
             document.getElementById('msgContainer').appendChild(newElement);
             break;
 
         case 'newMessageAll':
-            console.log('NEWALL');
             newElement.classList.add(element);
             newElement.textContent = content.pseudo + ': ' + content.message;
             document.getElementById('msgContainer').appendChild(newElement);
