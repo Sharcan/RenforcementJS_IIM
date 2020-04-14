@@ -176,13 +176,13 @@ io.on('connection', (socket) => {
 
                     if(socketReceiver) {
                         socketReceiver.emit('whisper', { sender: socket.pseudo, message: message })
-                    } else {
-                        var chat = new Chat();
-                        chat.sender = socket.pseudo;
-                        chat.receiver = receiver;
-                        chat.content = message;
-                        chat.save();
                     }
+
+                    var chat = new Chat();
+                    chat.sender = socket.pseudo;
+                    chat.receiver = receiver;
+                    chat.content = message;
+                    chat.save();
 
                 }
             })
