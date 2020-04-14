@@ -110,7 +110,7 @@ io.on('connection', (socket) => {
         socket.pseudo = pseudo;
 
         // On previent les autres
-        socket.broadcast.emit('newUser', pseudo);
+        socket.broadcast.to(socket.channel).emit('newUser', pseudo);
     });
 
     socket.on('channel', (channel) => {
@@ -141,7 +141,7 @@ io.on('connection', (socket) => {
 
     // Quand un user se déconnecte
     socket.on('disconnect', () => {
-        socket.broadcast.emit('quitUser', socket.pseudo);
+        socket.broadcast.to(socket.channel).emit('quitUser', socket.pseudo);
     });
 
     // Quand on recoit un nouveau message

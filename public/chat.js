@@ -1,6 +1,15 @@
 // On connecte le fichier au serveur
 var socket = io.connect('http://localhost:8080');
 
+
+
+var channel = prompt('Tu veux rejoindre quel channel ?');
+
+socket.emit('channel', channel);
+
+
+
+
 // On demande le pseudo de la personne
 while(!pseudo) {
     var pseudo = prompt('quel est ton nom ?');
@@ -20,9 +29,6 @@ while(!pseudo) {
 socket.emit('pseudo', pseudo);
 document.title = pseudo + ' - ' + document.title;
 
-var channel = prompt('Tu veux rejoindre quel channel ?');
-
-socket.emit('channel', channel);
 
 
 // On attends l'emission 'newUser' du serveur, si il est reçu on ajoute un message 
