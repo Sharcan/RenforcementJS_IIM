@@ -5,6 +5,7 @@ var chatSchema = new mongoose.Schema({
         type: String
     },
     sender: String,
+    receiver: String,
     content: String
 });
 

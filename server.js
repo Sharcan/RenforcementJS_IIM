@@ -117,7 +117,7 @@ io.on('connection', (socket) => {
         socket.join(channel);
         socket.channel = channel;
 
-        Room.findOne({_id: socket.channel}, (err, channel) => {
+        Room.findOne({name: socket.channel}, (err, channel) => {
             if(channel){
                 Chat.find({_id_room: socket.channel}, (err, messages) => {
                     if(!messages){
@@ -131,7 +131,7 @@ io.on('connection', (socket) => {
             else {
 
                 var room = new Room();
-                room._id = socket.channel;
+                room.name = socket.channel;
                 room.save();
 
                 return true;

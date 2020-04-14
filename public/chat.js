@@ -1,14 +1,10 @@
 // On connecte le fichier au serveur
 var socket = io.connect('http://localhost:8080');
 
-
-
-var channel = prompt('Tu veux rejoindre quel channel ?');
-
+while(!channel) {
+    var channel = prompt('Tu veux rejoindre quel channel ?');
+}
 socket.emit('channel', channel);
-
-
-
 
 // On demande le pseudo de la personne
 while(!pseudo) {
