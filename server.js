@@ -37,7 +37,6 @@ app.use(express.static(__dirname + '/public'));
 
 
 
-
 // ÉCOUTE DES ROUTES
 
 //POST
@@ -49,29 +48,10 @@ app.post('/login', (req, res, next) => {
         res.cookie('statusCode', 200);
         return res.status(200).json({ status: true });
         
-    //Sinon, on retourne le status 402 (pas ok)
-} else {
-    return res.status(402).json({ status: false });
-}
-})
-app.post('/createuser', (req, res, next) => {
-
-    //On cherche dans mongo le user avec ce pseudo
-    User.findOne({ pseudo: req.body.pseudo }, (err, user) => {
-        //Si il existe, on connecte le user en mettant son pseudo dans les cookies
-        if(user) {
-            res.cookie('pseudo', user.pseudo)
-            return res.status(200).json({ status: true })
-        //Sinon on crée le user et on le connecte
-        } else {
-            var user = new User();
-            user.pseudo = req.body.pseudo;
-            user.save();
-
-            res.cookie('pseudo', user.pseudo)
-            return res.status(200).json({ status: true })
-        }
-    })
+        //Sinon, on retourne le status 402 (pas ok)
+    } else {
+        return res.status(402).json({ status: false });
+    }
 })
 
 //GET
@@ -80,7 +60,13 @@ app.get('/', function(req, res) {
 });
 app.get('/chat', function(req, res) {
     if( req.cookies.statusCode === '200'){
-        res.render('chat.ejs');
+        User.find((err, users) => {
+            if(users) { 
+                res.render('chat.ejs', {users: users})
+            } else {
+                res.render('chat.ejs');
+            }
+        })
     }
     else{
         res.render('402.ejs');
@@ -99,6 +85,7 @@ app.use(function(req, res, next) {
 // IO
 
 var io = require('socket.io').listen(server);
+var connectedUsers = []
 
 // Lorsqu'une personne arrive sur le fichier chat.html, la fonction ci-dessous se lance
 io.on('connection', (socket) => {
@@ -106,11 +93,35 @@ io.on('connection', (socket) => {
     // On recoit 'pseudo' du fichier html
     socket.on('pseudo', (pseudo) => {
         
-        // On conserve le pseudo dans la variable socket qui est propre à chaque utilisateur
-        socket.pseudo = pseudo;
+        User.findOne({ pseudo: pseudo }, (err, user) => {
+            //Si il existe, on connecte le user en mettant son pseudo dans les cookies
+            if(user) {
+                 // On conserve le pseudo dans la variable socket qui est propre à chaque utilisateur
+                 socket.pseudo = pseudo;
+                 connectedUsers.push(socket)
+                 // On previent les autres
+                 socket.broadcast.to(socket.channel).emit('newUser', pseudo);
+                 
+                 //On va chercher les derniers messages privés
+                Chat.find({receiver: socket.pseudo}, (err, whispers) => {
+                    if(!whispers) {
+                        return false;
+                    } else {
+                        socket.emit('oldWhispers', whispers);
+                    }
+                })
+            } else {
+                var user = new User();
+                user.pseudo = pseudo;
+                user.save();
 
-        // On previent les autres
-        socket.broadcast.to(socket.channel).emit('newUser', pseudo);
+                socket.pseudo = pseudo;
+                connectedUsers.push(socket)
+                socket.broadcast.to(socket.channel).emit('newUser', pseudo);
+                socket.broadcast.emit('newUserInDb', pseudo);
+            }
+        })
+
     });
 
     socket.on('channel', (channel) => {
@@ -139,23 +150,54 @@ io.on('connection', (socket) => {
         })
     });
 
-    // Quand un user se déconnecte
-    socket.on('disconnect', () => {
-        socket.broadcast.to(socket.channel).emit('quitUser', socket.pseudo);
+    // Quand un nouveau message est envoyé
+    socket.on('newMessage', (message, receiver)=> {
+
+        if(receiver === "all") { 
+
+            var chat = new Chat();
+            chat._id_room = socket.channel;
+            chat.sender = socket.pseudo;
+            chat.receiver = receiver;
+            chat.content = message;
+            chat.save();  
+
+            // socket.broadcast.emit('newMessageAll', {message: message, pseudo: socket.pseudo});
+            socket.broadcast.to(socket.channel).emit('newMessageAll', {message: message, pseudo: socket.pseudo});
+
+        } else {
+
+            User.findOne({pseudo: receiver}, (err, user) => {
+                if(!user) {
+                    return false
+                } else {
+                    
+                    socketReceiver = connectedUsers.find(element => element.pseudo === user.pseudo)
+
+                    if(socketReceiver) {
+                        socketReceiver.emit('whisper', { sender: socket.pseudo, message: message })
+                    } else {
+                        var chat = new Chat();
+                        chat.sender = socket.pseudo;
+                        chat.receiver = receiver;
+                        chat.content = message;
+                        chat.save();
+                    }
+
+                }
+            })
+
+        }
+
     });
 
-    // Quand on recoit un nouveau message
-    socket.on('newMessage', (message)=> {
-        // socket.broadcast.emit('newMessageAll', {message: message, pseudo: socket.pseudo});
-        socket.broadcast.to(socket.channel).emit('newMessageAll', {message: message, pseudo: socket.pseudo});
-
-        var chat = new Chat();
-        chat._id_room = socket.channel;
-        chat.sender = socket.pseudo;
-        chat.content = message;
-        chat.save();
-
-
+    // Quand un user se déconnecte
+    socket.on('disconnect', () => {
+        var index = connectedUsers.indexOf(socket)
+        if(index > -1) {
+            connectedUsers.splice(index, 1)
+        }
+        socket.broadcast.to(socket.channel).emit('quitUser', socket.pseudo);
     });
 
     socket.on('writting', (pseudo) => {

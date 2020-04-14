@@ -9,17 +9,6 @@ socket.emit('channel', channel);
 // On demande le pseudo de la personne
 while(!pseudo) {
     var pseudo = prompt('quel est ton nom ?');
-    fetch('http://localhost:8080/createuser', {
-                //On appel le serveur en faisant passer le pseudo
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*"
-                },
-                body: JSON.stringify({
-                    pseudo: pseudo
-                })
-    })
 }
 
 socket.emit('pseudo', pseudo);
@@ -28,22 +17,35 @@ document.title = pseudo + ' - ' + document.title;
 
 
 // On attends l'emission 'newUser' du serveur, si il est reçu on ajoute un message 
-// contenant les informations emises par le serveur
-socket.on('newUser', (message) => {
-    createElementFunction('newUser', message);
+// contenant les informations emises par le serveur, et ajoutant le user à la liste des users
+socket.on('newUser', (pseudo) => {
+    createElementFunction('newUser', pseudo);
 });
+socket.on('newUserInDb', (pseudo) => {
+    newOption = document.createElement('option');
+    newOption.textContent = pseudo;
+    newOption.value = pseudo;
+    document.getElementById('receiverInput').appendChild(newOption);
+})
 
 // On check si le user se déconnecte
 socket.on('quitUser', (message) => {
     createElementFunction('quitUser', message);
 });
 
-// On attends un message venant d'une personne tierce
+// On attend un nouveau message
 socket.on('newMessageAll', (content) => {
 
     createElementFunction('newMessageAll', content);
 
 });
+
+// On attend un message privé
+socket.on('whisper', (content) => {
+
+    createElementFunction('whisper', content);
+
+})
 
 // Une personne est en train d'ecrire
 socket.on('writting', (pseudo) => {
@@ -56,13 +58,16 @@ socket.on('notWritting', (pseudo) => {
 });
 
 
-socket.on('oldMessages', (content) => {
-    // createElementFunction('oldMessages', content);
-
-    content.forEach(element => {
-        createElementFunction('oldMessages', {sender: element.sender, content: element.content});
+socket.on('oldMessages', (messages) => {
+    messages.forEach(message => {
+        createElementFunction('oldMessages', {sender: message.sender, content: message.content});
     });
 });
+socket.on('oldWhispers', (whispers) => {
+    whispers.forEach(whisper => {
+        createElementFunction('oldWhispers', {sender: whisper.sender, content: whisper.content});
+    });
+})
 
 
 
@@ -75,12 +80,17 @@ document.getElementById('chatForm').addEventListener('submit', (e)=>{
     const textInput = document.getElementById('msgInput').value;
     document.getElementById('msgInput').value = '';
 
+    // On récupère le destinataire du message
+    const receiver = document.getElementById('receiverInput').value;
+
     // Si la valeur > 0, on envoie un message au serveur contenant la valeur de l'input 
     if(textInput.length > 0) {
 
-        socket.emit('newMessage', textInput);
+        socket.emit('newMessage', textInput, receiver);
 
-        createElementFunction('newMessage', textInput);
+        if(receiver === "all") {
+            createElementFunction('newMessage', textInput);
+        }
 
     }
     else {
@@ -119,6 +129,12 @@ function createElementFunction(element, content) {
             document.getElementById('msgContainer').appendChild(newElement);
             break;
 
+        case 'whisper':
+            newElement.classList.add(element);
+            newElement.textContent = content.sender + ' vous chuchote: ' + content.message;
+            document.getElementById('msgContainer').appendChild(newElement);
+            break;
+
         case 'newUser':
             newElement.classList.add(element);
             newElement.textContent = content + ' à rejoint le chat';
@@ -134,6 +150,12 @@ function createElementFunction(element, content) {
         case 'oldMessages':
             newElement.classList.add(element);
             newElement.textContent = content.sender + ': ' + content.content;
+            document.getElementById('msgContainer').appendChild(newElement);
+            break;
+
+        case 'oldWhispers':
+            newElement.classList.add(element)
+            newElement.textContent = content.sender + ' vous chuchote : ' + content.content;
             document.getElementById('msgContainer').appendChild(newElement);
             break;
 

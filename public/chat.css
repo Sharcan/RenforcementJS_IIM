@@ -104,8 +104,27 @@ form > input[type="submit"]{
 
 }
 
+.whisper{
+    background-color: rgb(235, 14, 14);
+    border: none;
+    border-radius: 10px;
+    font-size: 20px;
+    padding: 5px;
+    max-width: 50%;
+    margin-top: 2%;
+}
+
 .oldMessages{
     background-color: rgb(204, 211, 211);
+    border: none;
+    border-radius: 10px;
+    font-size: 20px;
+    padding: 5px;
+    max-width: 50%;
+    margin-top: 2%;
+}
+.oldWhispers{
+    background-color: rgb(235, 14, 14);
     border: none;
     border-radius: 10px;
     font-size: 20px;
