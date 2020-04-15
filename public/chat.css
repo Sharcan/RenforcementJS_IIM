@@ -21,7 +21,9 @@
     width: 100%;
     margin-left: 20%;
 }
-
+.msgContainer{
+    margin-left: 20%;
+}
 .chatTitle{
     display: flex;
     justify-content: center;
