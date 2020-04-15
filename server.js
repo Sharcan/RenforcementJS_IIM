@@ -154,6 +154,8 @@ io.on('connection', (socket) => {
 
     function _joinRoom(channelParam) {
 
+        
+        socket.leaveAll();
         socket.join(channelParam);
         socket.channel = channelParam;
         console.log(socket.pseudo + ' est dans: ' + socket.channel);
@@ -194,6 +196,7 @@ io.on('connection', (socket) => {
             chat.receiver = receiver;
             chat.content = message;
             chat.save();  
+
             console.log(socket.channel);
             socket.broadcast.to(socket.channel).emit('newMessageAll', {message: message, pseudo: socket.pseudo});
 
@@ -233,11 +236,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('writting', (pseudo) => {
-        socket.broadcast.emit('writting', pseudo);
+        socket.broadcast.to(socket.channel).emit('writting', pseudo);
     });
 
     socket.on('notWritting', (pseudo) => {
-        socket.broadcast.emit('notWritting', pseudo);
+        socket.broadcast.to(socket.channel).emit('notWritting', pseudo);
     });
 
 
