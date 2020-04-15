@@ -1,10 +1,12 @@
 // On connecte le fichier au serveur
 var socket = io.connect('http://localhost:8080');
 
-while(!channel) {
-    var channel = prompt('Tu veux rejoindre quel channel ?');
-}
-socket.emit('channel', channel);
+// while(!channel) {
+//     var channel = prompt('Tu veux rejoindre quel channel ?');
+// }
+// socket.emit('channel', channel);
+
+
 
 // On demande le pseudo de la personne
 while(!pseudo) {
@@ -62,7 +64,10 @@ socket.on('oldMessages', (messages) => {
     messages.forEach(message => {
         createElementFunction('oldMessages', {sender: message.sender, content: message.content});
     });
+    console.log(document.getElementsByClassName('message'));
 });
+
+
 socket.on('oldWhispers', (whispers) => {
     whispers.forEach(whisper => {
         createElementFunction('oldWhispers', {sender: whisper.sender, content: whisper.content});
@@ -118,49 +123,70 @@ function createElementFunction(element, content) {
     switch(element){
 
         case 'newMessage':
-            newElement.classList.add(element);
+            newElement.classList.add(element, 'message');
             newElement.textContent = pseudo + ': ' + content;
             document.getElementById('msgContainer').appendChild(newElement);
             break;
-
+            
+            
         case 'newMessageAll':
-            newElement.classList.add(element);
+            newElement.classList.add(element, 'message');
             newElement.textContent = content.pseudo + ': ' + content.message;
             document.getElementById('msgContainer').appendChild(newElement);
             break;
 
         case 'whisper':
-            newElement.classList.add(element);
+            newElement.classList.add(element, 'message');
             newElement.textContent = content.sender + ' vous chuchote: ' + content.message;
+            newElement.id = 'message';
             document.getElementById('msgContainer').appendChild(newElement);
             break;
 
         case 'newUser':
-            newElement.classList.add(element);
+            newElement.classList.add(element, 'message');
             newElement.textContent = content + ' à rejoint le chat';
             document.getElementById('msgContainer').appendChild(newElement);
             break;
 
         case 'quitUser':
-            newElement.classList.add(element);
+            newElement.classList.add(element, 'message');
             newElement.textContent = content + ' à quitter le chat';
             document.getElementById('msgContainer').appendChild(newElement);
             break;
 
         case 'oldMessages':
-            newElement.classList.add(element);
+            newElement.classList.add(element, 'message');
             newElement.textContent = content.sender + ': ' + content.content;
             document.getElementById('msgContainer').appendChild(newElement);
             break;
 
         case 'oldWhispers':
-            newElement.classList.add(element)
+            newElement.classList.add(element, 'message');
             newElement.textContent = content.sender + ' vous chuchote : ' + content.content;
             document.getElementById('msgContainer').appendChild(newElement);
             break;
 
     }
 }
+
+
+function _joinRoom(channel){
+
+    // let messages = document.getElementsByClassName('message');
+
+    
+    // for(let i = 0; i<= messages.length; i++){
+    //     document.getElementById('msgContainer').parentElement.removeChild(messages[i]);
+    // }
+
+    document.getElementById('msgContainer').innerHTML = "";
+
+    socket.emit('changeChannel', channel);
+
+    
+}
+
+
 
 
 //Text typping effect

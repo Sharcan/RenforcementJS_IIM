@@ -15,7 +15,19 @@
             <h1 class="typing">coucou</h1>
         </div>
 
-        <div class="msgContainer" id="msgContainer"></div>
+
+        <div class="container">
+            <div class="channelList">
+                <h1>Liste des channels</h1>
+                <ul>
+                    <% channels.forEach(channel => { %>
+                    <li onclick="_joinRoom('<%=channel.name%>')" class="elementList"><%= channel.name %></li>
+                    <% }); %>
+                </ul>
+            </div>
+    
+            <div class="msgContainer" id="msgContainer"></div>
+        </div>
         
         <div id="isWritting"></div>
         <form action="/chat" method="POST" id="chatForm">

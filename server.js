@@ -62,11 +62,27 @@ app.get('/chat', function(req, res) {
     if( req.cookies.statusCode === '200'){
         User.find((err, users) => {
             if(users) { 
-                res.render('chat.ejs', {users: users})
+                Room.find((err, channels) => {
+                    if(channels){
+                        res.render('chat.ejs', {users: users, channels: channels});
+                    }
+                    else {
+
+                        res.render('chat.ejs', {users: users});
+                    }
+                });
             } else {
-                res.render('chat.ejs');
+                Room.find((err, channels) => {
+                    if(channels){
+                        res.render('chat.ejs', {channels: channels});
+                    }
+                    else {
+
+                        res.render('chat.ejs');
+                    }
+                });
             }
-        })
+        });
     }
     else{
         res.render('402.ejs');
@@ -96,24 +112,35 @@ io.on('connection', (socket) => {
         User.findOne({ pseudo: pseudo }, (err, user) => {
             //Si il existe, on connecte le user en mettant son pseudo dans les cookies
             if(user) {
-                 // On conserve le pseudo dans la variable socket qui est propre à chaque utilisateur
-                 socket.pseudo = pseudo;
-                 connectedUsers.push(socket)
-                 // On previent les autres
-                 socket.broadcast.to(socket.channel).emit('newUser', pseudo);
-                 
-                 //On va chercher les derniers messages privés
+
+                // On join automatiquement le channel "all" par défaut
+                _joinRoom("all");
+
+                
+                // On conserve le pseudo dans la variable socket qui est propre à chaque utilisateur
+                socket.pseudo = pseudo;
+                connectedUsers.push(socket);
+                // On previent les autres
+                socket.broadcast.to(socket.channel).emit('newUser', pseudo);
+                
+                //On va chercher les derniers messages privés
                 Chat.find({receiver: socket.pseudo}, (err, whispers) => {
                     if(!whispers) {
                         return false;
                     } else {
                         socket.emit('oldWhispers', whispers);
                     }
-                })
+                });
+
+
             } else {
                 var user = new User();
                 user.pseudo = pseudo;
                 user.save();
+
+                // On join automatiquement le channel "all" par défaut
+                _joinRoom("all");
+
 
                 socket.pseudo = pseudo;
                 connectedUsers.push(socket)
@@ -124,9 +151,14 @@ io.on('connection', (socket) => {
 
     });
 
-    socket.on('channel', (channel) => {
-        socket.join(channel);
-        socket.channel = channel;
+
+    function _joinRoom(channelParam) {
+
+        
+        socket.leaveAll();
+        socket.join(channelParam);
+        socket.channel = channelParam;
+        console.log(socket.pseudo + ' est dans: ' + socket.channel);
 
         Room.findOne({name: socket.channel}, (err, channel) => {
             if(channel){
@@ -137,22 +169,25 @@ io.on('connection', (socket) => {
                     else{
                         socket.emit('oldMessages', messages);
                     }
-                })
+                });
             }
             else {
-
+        
                 var room = new Room();
                 room.name = socket.channel;
                 room.save();
-
+        
                 return true;
             }
         })
+    }
+
+    socket.on('changeChannel', (channel) => {
+        _joinRoom(channel);
     });
 
     // Quand un nouveau message est envoyé
     socket.on('newMessage', (message, receiver)=> {
-
         if(receiver === "all") { 
 
             var chat = new Chat();
@@ -162,7 +197,7 @@ io.on('connection', (socket) => {
             chat.content = message;
             chat.save();  
 
-            // socket.broadcast.emit('newMessageAll', {message: message, pseudo: socket.pseudo});
+            console.log(socket.channel);
             socket.broadcast.to(socket.channel).emit('newMessageAll', {message: message, pseudo: socket.pseudo});
 
         } else {
@@ -201,11 +236,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('writting', (pseudo) => {
-        socket.broadcast.emit('writting', pseudo);
+        socket.broadcast.to(socket.channel).emit('writting', pseudo);
     });
 
     socket.on('notWritting', (pseudo) => {
-        socket.broadcast.emit('notWritting', pseudo);
+        socket.broadcast.to(socket.channel).emit('notWritting', pseudo);
     });
 
 
