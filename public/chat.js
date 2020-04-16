@@ -187,6 +187,15 @@ function _joinRoom(channel){
 }
 
 
+function _createRoom(){
+    while(!newRoom){
+        var newRoom = prompt('Quel est le nom de la nouvelle Room');
+    }
+
+    _joinRoom(newRoom);
+    window.location.reload();
+}
+
 
 
 //Text typping effect

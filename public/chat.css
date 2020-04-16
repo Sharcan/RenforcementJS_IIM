@@ -152,6 +152,7 @@ form > input[type="submit"]{
     background-color: rgb(131, 131, 131);
     padding: 20px;
     transition: 0.5s;
+    cursor: pointer;
 }
 
 
@@ -159,4 +160,5 @@ form > input[type="submit"]{
     
     background-color: rgb(105, 105, 105);
     transition: 0.5s;
+    cursor: pointer;
 }

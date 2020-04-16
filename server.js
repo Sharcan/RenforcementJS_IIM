@@ -158,7 +158,6 @@ io.on('connection', (socket) => {
         socket.leaveAll();
         socket.join(channelParam);
         socket.channel = channelParam;
-        console.log(socket.pseudo + ' est dans: ' + socket.channel);
 
         Room.findOne({name: socket.channel}, (err, channel) => {
             if(channel){
@@ -197,7 +196,6 @@ io.on('connection', (socket) => {
             chat.content = message;
             chat.save();  
 
-            console.log(socket.channel);
             socket.broadcast.to(socket.channel).emit('newMessageAll', {message: message, pseudo: socket.pseudo});
 
         } else {
