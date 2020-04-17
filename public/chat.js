@@ -62,7 +62,7 @@ socket.on('notWritting', (pseudo) => {
 
 socket.on('oldMessages', (messages) => {
     messages.forEach(message => {
-        createElementFunction('oldMessages', {sender: message.sender, content: message.content});
+        createElementFunction('oldMessages', {sender: message.sender, content: message.content, id: message._id});
     });
     console.log(document.getElementsByClassName('message'));
 });
@@ -131,7 +131,8 @@ function createElementFunction(element, content) {
             
         case 'newMessageAll':
             newElement.classList.add(element, 'message');
-            newElement.textContent = content.pseudo + ': ' + content.message;
+            newElement.id = content.id;
+            newElement.innerHTML = content.pseudo + ': ' + content.message + '<i class="material-icons" style="cursor: pointer;" onclick="_onLike(' + content.id + ')">sentiment_satisfied_alt</i>';
             document.getElementById('msgContainer').appendChild(newElement);
             break;
 
@@ -156,13 +157,14 @@ function createElementFunction(element, content) {
 
         case 'oldMessages':
             newElement.classList.add(element, 'message');
-            newElement.textContent = content.sender + ': ' + content.content;
+            newElement.innerHTML = content.sender + ': ' + content.content + '<i class="material-icons" style="cursor: pointer;" onclick="_onLike(\'' + content.id + '\')">sentiment_satisfied_alt</i>';
+            newElement.id = content.id;
             document.getElementById('msgContainer').appendChild(newElement);
             break;
 
         case 'oldWhispers':
             newElement.classList.add(element, 'message');
-            newElement.textContent = content.sender + ' vous chuchote : ' + content.content;
+            newElement.innerHTML = content.sender + ' vous chuchote : ' + content.content + '<i class="material-icons" style="cursor: pointer;">sentiment_satisfied_alt</i>';
             document.getElementById('msgContainer').appendChild(newElement);
             break;
 
@@ -178,7 +180,7 @@ function _joinRoom(channel){
     // for(let i = 0; i<= messages.length; i++){
     //     document.getElementById('msgContainer').parentElement.removeChild(messages[i]);
     // }
-
+    
     document.getElementById('msgContainer').innerHTML = "";
 
     socket.emit('changeChannel', channel);
@@ -196,6 +198,9 @@ function _createRoom(){
     window.location.reload();
 }
 
+function _onLike(id) {
+    socket.emit('addLike', id);
+}
 
 
 //Text typping effect
