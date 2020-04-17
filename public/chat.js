@@ -79,10 +79,10 @@ socket.on('updateReaction', (content) => {
     document.getElementById('reactionId' + content.id).innerHTML ='Like: <b>'+ content.count +'</b>';
 });
 
-socket.on('idNewMessage', id => {
-    document.getElementById('newMessage').id = id.id;
-    document.getElementById('reactionId').id = 'reactionId' + id.id;
-    document.getElementById('reactionId'+id.id).innerHTML = '<div id="reactionId">Like: <b>' + id.reaction + '</b></div>'
+socket.on('idNewMessage', content => {
+    document.getElementById('newMessage').id = content.id;
+    document.getElementById('reactionId').id = 'reactionId' + content.id;
+    document.getElementById('reactionId'+id.id).innerHTML = '<div id="reactionId">Like: <b>' + content.reaction + '</b></div>'
 });
 
 
