@@ -183,9 +183,11 @@ function createElementFunction(element, content) {
 
 
 function _joinRoom(channel){
-    
+  
+    // On réinitialise les messages
     document.getElementById('msgContainer').innerHTML = "";
 
+    // On émet le changement de room
     socket.emit('changeChannel', channel);
 
     
@@ -198,7 +200,12 @@ function _createRoom(){
     }
 
     _joinRoom(newRoom);
-    window.location.reload();
+
+    const newRoomItem = document.createElement("li");
+    newRoomItem.classList.add('elementList');
+    newRoomItem.textContent = newRoom;
+    newRoomItem.setAttribute('onclick', "_joinRoom('" + newRoom + "')")
+    document.getElementById('roomList').insertBefore(newRoomItem, document.getElementById('createNewRoom'));
 }
 
 function _onLike(id) {
