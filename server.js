@@ -9,6 +9,8 @@ var cors = require('cors');
 const cookieParser = require('cookie-parser');
 var mongoose = require('mongoose');
 
+const ObjectId = mongoose.Types.ObjectId;
+
 //On se conencte à la base de données
 mongoose.connect('mongodb://localhost/RenforcementJS', { useNewUrlParser: true, useUnifiedTopology: true }, function(err){
 if(err) {
@@ -194,9 +196,11 @@ io.on('connection', (socket) => {
             chat.sender = socket.pseudo;
             chat.receiver = receiver;
             chat.content = message;
-            chat.save();  
+            chat.reaction = 0;
+            chat.save();
 
-            socket.broadcast.to(socket.channel).emit('newMessageAll', {message: message, pseudo: socket.pseudo});
+            socket.emit('idNewMessage', chat._id);
+            socket.broadcast.to(socket.channel).emit('newMessageAll', {message: message, pseudo: socket.pseudo, id: chat._id});
 
         } else {
 
@@ -215,6 +219,7 @@ io.on('connection', (socket) => {
                     chat.sender = socket.pseudo;
                     chat.receiver = receiver;
                     chat.content = message;
+                    chat.reaction = 0;
                     chat.save();
 
                 }
@@ -241,6 +246,16 @@ io.on('connection', (socket) => {
         socket.broadcast.to(socket.channel).emit('notWritting', pseudo);
     });
 
+    socket.on('addLike', (id) => {
+        Chat.findOneAndUpdate({_id: ObjectId(id)},
+            {
+                $inc: {reaction: 1}
+            },
+            (err, message) => {
+                io.in(socket.channel).emit('updateReaction', {count: message.reaction, id: id});
+            }
+        );
+    });
 
 });
 

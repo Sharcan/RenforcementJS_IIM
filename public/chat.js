@@ -47,7 +47,7 @@ socket.on('whisper', (content) => {
 
     createElementFunction('whisper', content);
 
-})
+});
 
 // Une personne est en train d'ecrire
 socket.on('writting', (pseudo) => {
@@ -62,9 +62,8 @@ socket.on('notWritting', (pseudo) => {
 
 socket.on('oldMessages', (messages) => {
     messages.forEach(message => {
-        createElementFunction('oldMessages', {sender: message.sender, content: message.content});
+        createElementFunction('oldMessages', {sender: message.sender, content: message.content, id: message._id});
     });
-    console.log(document.getElementsByClassName('message'));
 });
 
 
@@ -72,8 +71,18 @@ socket.on('oldWhispers', (whispers) => {
     whispers.forEach(whisper => {
         createElementFunction('oldWhispers', {sender: whisper.sender, content: whisper.content});
     });
-})
+});
 
+socket.on('updateReaction', (content) => {
+    // document.querySelector('#'+ content.id +' > div').textContent = content.count;
+
+    document.getElementById('reactionId' + content.id).innerHTML ='<b>'+ content.count +'</b>';
+});
+
+socket.on('idNewMessage', id => {
+    document.getElementById('newMessage').id = id;
+    document.getElementById('reactionId').id = 'reactionId' + id;
+});
 
 
 // Quand on soumet le formulaire
@@ -124,14 +133,16 @@ function createElementFunction(element, content) {
 
         case 'newMessage':
             newElement.classList.add(element, 'message');
-            newElement.textContent = pseudo + ': ' + content;
+            newElement.innerHTML = pseudo + ': ' + content + '<div id="reactionId"></div>';
+            newElement.id = 'newMessage';
             document.getElementById('msgContainer').appendChild(newElement);
             break;
             
             
         case 'newMessageAll':
             newElement.classList.add(element, 'message');
-            newElement.textContent = content.pseudo + ': ' + content.message;
+            newElement.id = content.id;
+            newElement.innerHTML = content.pseudo + ': ' + content.message + '<i class="material-icons" style="cursor: pointer;" onclick="_onLike(\'' + content.id + '\')">sentiment_satisfied_alt</i> <div id="reactionId'+ content.id +'"></div>';
             document.getElementById('msgContainer').appendChild(newElement);
             break;
 
@@ -156,13 +167,14 @@ function createElementFunction(element, content) {
 
         case 'oldMessages':
             newElement.classList.add(element, 'message');
-            newElement.textContent = content.sender + ': ' + content.content;
+            newElement.innerHTML = content.sender + ': ' + content.content + '<i class="material-icons" style="cursor: pointer;" onclick="_onLike(\'' + content.id + '\')">sentiment_satisfied_alt</i> <div id="reactionId'+ content.id +'"></div>';
+            newElement.id = content.id;
             document.getElementById('msgContainer').appendChild(newElement);
             break;
 
         case 'oldWhispers':
             newElement.classList.add(element, 'message');
-            newElement.textContent = content.sender + ' vous chuchote : ' + content.content;
+            newElement.innerHTML = content.sender + ' vous chuchote : ' + content.content + '<i class="material-icons" style="cursor: pointer;">sentiment_satisfied_alt</i>';
             document.getElementById('msgContainer').appendChild(newElement);
             break;
 
@@ -171,7 +183,7 @@ function createElementFunction(element, content) {
 
 
 function _joinRoom(channel){
-
+  
     // On réinitialise les messages
     document.getElementById('msgContainer').innerHTML = "";
 
@@ -196,6 +208,9 @@ function _createRoom(){
     document.getElementById('roomList').insertBefore(newRoomItem, document.getElementById('createNewRoom'));
 }
 
+function _onLike(id) {
+    socket.emit('addLike', id);
+}
 
 
 //Text typping effect
@@ -221,3 +236,4 @@ let letter = '';
     setTimeout(type, 1000);
 
 }());
+

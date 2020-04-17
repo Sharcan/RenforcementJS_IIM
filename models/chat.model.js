@@ -6,7 +6,10 @@ var chatSchema = new mongoose.Schema({
     },
     sender: String,
     receiver: String,
-    content: String
+    content: String,
+    reaction: Number
+    
+
 });
 
 mongoose.model('chat', chatSchema);
