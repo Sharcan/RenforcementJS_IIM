@@ -76,7 +76,7 @@ socket.on('oldWhispers', (whispers) => {
 socket.on('updateReaction', (content) => {
     // document.querySelector('#'+ content.id +' > div').textContent = content.count;
 
-    document.getElementById('reactionId' + content.id).innerHTML ='Like: <b>'+ content.count +'</b>';
+    document.getElementById('reactionId' + content.id).innerHTML ='Like: <b>'+ (content.count + 1) +'</b>';
 });
 
 socket.on('idNewMessage', content => {
