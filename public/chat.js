@@ -234,7 +234,7 @@ let letter = '';
         count++;
         index = 0;
     }
-    setTimeout(type, 1000);
+    setTimeout(type, 1);
 
 }());
 
