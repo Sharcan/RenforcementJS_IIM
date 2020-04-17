@@ -62,7 +62,7 @@ socket.on('notWritting', (pseudo) => {
 
 socket.on('oldMessages', (messages) => {
     messages.forEach(message => {
-        createElementFunction('oldMessages', {sender: message.sender, content: message.content, id: message._id});
+        createElementFunction('oldMessages', {sender: message.sender, content: message.content, id: message._id, reaction: message.reaction});
     });
 });
 
@@ -76,12 +76,13 @@ socket.on('oldWhispers', (whispers) => {
 socket.on('updateReaction', (content) => {
     // document.querySelector('#'+ content.id +' > div').textContent = content.count;
 
-    document.getElementById('reactionId' + content.id).innerHTML ='<b>'+ content.count +'</b>';
+    document.getElementById('reactionId' + content.id).innerHTML ='Like: <b>'+ content.count +'</b>';
 });
 
 socket.on('idNewMessage', id => {
-    document.getElementById('newMessage').id = id;
-    document.getElementById('reactionId').id = 'reactionId' + id;
+    document.getElementById('newMessage').id = id.id;
+    document.getElementById('reactionId').id = 'reactionId' + id.id;
+    document.getElementById('reactionId'+id.id).innerHTML = '<div id="reactionId">Like: <b>' + id.reaction + '</b></div>'
 });
 
 
@@ -142,7 +143,7 @@ function createElementFunction(element, content) {
         case 'newMessageAll':
             newElement.classList.add(element, 'message');
             newElement.id = content.id;
-            newElement.innerHTML = content.pseudo + ': ' + content.message + '<i class="material-icons" style="cursor: pointer;" onclick="_onLike(\'' + content.id + '\')">sentiment_satisfied_alt</i> <div id="reactionId'+ content.id +'"></div>';
+            newElement.innerHTML = content.pseudo + ': ' + content.message + '<i class="material-icons" style="cursor: pointer;" onclick="_onLike(\'' + content.id + '\')">sentiment_satisfied_alt</i> <div id="reactionId'+ content.id +'">Like: ' + content.reaction + '</div>';
             document.getElementById('msgContainer').appendChild(newElement);
             break;
 
@@ -167,7 +168,7 @@ function createElementFunction(element, content) {
 
         case 'oldMessages':
             newElement.classList.add(element, 'message');
-            newElement.innerHTML = content.sender + ': ' + content.content + '<i class="material-icons" style="cursor: pointer;" onclick="_onLike(\'' + content.id + '\')">sentiment_satisfied_alt</i> <div id="reactionId'+ content.id +'"></div>';
+            newElement.innerHTML = content.sender + ': ' + content.content + '<i class="material-icons" style="cursor: pointer;" onclick="_onLike(\'' + content.id + '\')">sentiment_satisfied_alt</i> <div id="reactionId'+ content.id +'">Like: ' + content.reaction + '</div>';
             newElement.id = content.id;
             document.getElementById('msgContainer').appendChild(newElement);
             break;

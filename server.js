@@ -199,8 +199,8 @@ io.on('connection', (socket) => {
             chat.reaction = 0;
             chat.save();
 
-            socket.emit('idNewMessage', chat._id);
-            socket.broadcast.to(socket.channel).emit('newMessageAll', {message: message, pseudo: socket.pseudo, id: chat._id});
+            socket.emit('idNewMessage', {id: chat._id, reaction: chat.reaction});
+            socket.broadcast.to(socket.channel).emit('newMessageAll', {message: message, pseudo: socket.pseudo, id: chat._id, reaction: chat.reaction});
 
         } else {
 
