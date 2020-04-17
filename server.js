@@ -198,6 +198,8 @@ io.on('connection', (socket) => {
             chat.content = message;
             chat.reaction = 0;
             chat.save();
+
+            socket.emit('idNewMessage', chat._id);
             socket.broadcast.to(socket.channel).emit('newMessageAll', {message: message, pseudo: socket.pseudo, id: chat._id});
 
         } else {
@@ -245,10 +247,12 @@ io.on('connection', (socket) => {
     });
 
     socket.on('addLike', (id) => {
-        console.log('oui')
         Chat.findOneAndUpdate({_id: ObjectId(id)},
             {
                 $inc: {reaction: 1}
+            },
+            (err, message) => {
+                io.in(socket.channel).emit('updateReaction', {count: message.reaction, id: id});
             }
         );
     });

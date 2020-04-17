@@ -47,7 +47,7 @@ socket.on('whisper', (content) => {
 
     createElementFunction('whisper', content);
 
-})
+});
 
 // Une personne est en train d'ecrire
 socket.on('writting', (pseudo) => {
@@ -64,7 +64,6 @@ socket.on('oldMessages', (messages) => {
     messages.forEach(message => {
         createElementFunction('oldMessages', {sender: message.sender, content: message.content, id: message._id});
     });
-    console.log(document.getElementsByClassName('message'));
 });
 
 
@@ -72,8 +71,18 @@ socket.on('oldWhispers', (whispers) => {
     whispers.forEach(whisper => {
         createElementFunction('oldWhispers', {sender: whisper.sender, content: whisper.content});
     });
-})
+});
 
+socket.on('updateReaction', (content) => {
+    // document.querySelector('#'+ content.id +' > div').textContent = content.count;
+
+    document.getElementById('reactionId' + content.id).innerHTML ='<b>'+ content.count +'</b>';
+});
+
+socket.on('idNewMessage', id => {
+    document.getElementById('newMessage').id = id;
+    document.getElementById('reactionId').id = 'reactionId' + id;
+});
 
 
 // Quand on soumet le formulaire
@@ -124,7 +133,8 @@ function createElementFunction(element, content) {
 
         case 'newMessage':
             newElement.classList.add(element, 'message');
-            newElement.textContent = pseudo + ': ' + content;
+            newElement.innerHTML = pseudo + ': ' + content + '<div id="reactionId"></div>';
+            newElement.id = 'newMessage';
             document.getElementById('msgContainer').appendChild(newElement);
             break;
             
@@ -132,7 +142,7 @@ function createElementFunction(element, content) {
         case 'newMessageAll':
             newElement.classList.add(element, 'message');
             newElement.id = content.id;
-            newElement.innerHTML = content.pseudo + ': ' + content.message + '<i class="material-icons" style="cursor: pointer;" onclick="_onLike(' + content.id + ')">sentiment_satisfied_alt</i>';
+            newElement.innerHTML = content.pseudo + ': ' + content.message + '<i class="material-icons" style="cursor: pointer;" onclick="_onLike(\'' + content.id + '\')">sentiment_satisfied_alt</i> <div id="reactionId'+ content.id +'"></div>';
             document.getElementById('msgContainer').appendChild(newElement);
             break;
 
@@ -157,7 +167,7 @@ function createElementFunction(element, content) {
 
         case 'oldMessages':
             newElement.classList.add(element, 'message');
-            newElement.innerHTML = content.sender + ': ' + content.content + '<i class="material-icons" style="cursor: pointer;" onclick="_onLike(\'' + content.id + '\')">sentiment_satisfied_alt</i>';
+            newElement.innerHTML = content.sender + ': ' + content.content + '<i class="material-icons" style="cursor: pointer;" onclick="_onLike(\'' + content.id + '\')">sentiment_satisfied_alt</i> <div id="reactionId'+ content.id +'"></div>';
             newElement.id = content.id;
             document.getElementById('msgContainer').appendChild(newElement);
             break;
@@ -173,13 +183,6 @@ function createElementFunction(element, content) {
 
 
 function _joinRoom(channel){
-
-    // let messages = document.getElementsByClassName('message');
-
-    
-    // for(let i = 0; i<= messages.length; i++){
-    //     document.getElementById('msgContainer').parentElement.removeChild(messages[i]);
-    // }
     
     document.getElementById('msgContainer').innerHTML = "";
 
@@ -226,3 +229,4 @@ let letter = '';
     setTimeout(type, 1000);
 
 }());
+
